@@ -31,7 +31,6 @@ void UMyGameInstance::CreateThread(int32 PortNumber)
 
 void UMyGameInstance::DeleteThread()
 {
-	// FRunnable API를 이용한 쓰레드는 run함수가 끝나면 알아서 사라진다
 	if (ForkProcessThread != nullptr)
 	{
 		ForkProcessThread->Stop();

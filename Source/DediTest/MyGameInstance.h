@@ -21,7 +21,6 @@ public:
 
 	void CreateThread(int32 PortNum);
 
-	// 서버 종료할 때 사용해야 한다
 	void DeleteThread();
 	
 	
