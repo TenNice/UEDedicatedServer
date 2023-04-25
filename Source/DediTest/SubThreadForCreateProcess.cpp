@@ -3,26 +3,38 @@
 
 #include "SubThreadForCreateProcess.h"
 
+// Singleton class
+#include "MySingletonSubsystem.h"
+
+
 SubThreadForCreateProcess::SubThreadForCreateProcess()
 {
 	Thread = FRunnableThread::Create(this, TEXT("SubThreadForCreateProcess"));
-	Port = 0;
+	SingletonResource = nullptr;
+
+	bRunThread = true;
+	bSend = true;
 }
 
-SubThreadForCreateProcess::SubThreadForCreateProcess(int32 PortNum)
+SubThreadForCreateProcess::SubThreadForCreateProcess(UGameInstance* GI)
 {
-	Thread = FRunnableThread::Create(this, TEXT("SubThreadForCreateProcess")); 
-	Port = PortNum;
+	Thread = FRunnableThread::Create(this, TEXT("SubThreadForCreateProcess"));
+	if (GI != nullptr)
+	{
+		SingletonResource = GI->GetSubsystem<UMySingletonSubsystem>();
+	}
+	
+	bRunThread = true;
+	bSend = true;
 }
 
 SubThreadForCreateProcess::~SubThreadForCreateProcess()
 {
 	if (Thread)
 	{
-		// 실질적으로 쓰레드의 활동을 멈추고 쓰레드를 지우는 곳이다.
 		UE_LOG(LogTemp, Warning, TEXT("Delete SubThreadForCreateProcess"));
 		Thread->WaitForCompletion();
-		Thread->Kill(); // Kill()이 Stop() 호출하네
+		Thread->Kill();
 		delete Thread;
 	}
 }
@@ -34,10 +46,23 @@ bool SubThreadForCreateProcess::Init()
 
 uint32 SubThreadForCreateProcess::Run()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Run SubThreadForCreateProcess"));
+	if (SingletonResource != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *SingletonResource->GetIP());
+	}
 
-	// 실제 할 일
-	
+	// Do
+	while (bRunThread)
+	{
+		int32 BytesSent = 0;
+
+		if (bSend)
+		{
+			//Socket->Send(Buffer, sizeof(Buffer), BytesSent);
+			bSend = false;
+		}
+
+	}
 
 	return 0;
 }

@@ -14,18 +14,12 @@ class ADediTestGameMode : public AGameModeBase
 public:
 	ADediTestGameMode();
 
-	// Dedicated Server File Address and Options
-	FString DedicatedServerPath;
-	FString DedicatedServerOptions;
-
-	// Run Additional Dedicated Server
+	// Get IP
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
-	bool RunDedicatedServer(const FString& Options);
+	FString GetDedicatedServerIP();
 
-	FString ServerPath;
-
-	// Get URL
+	// Get Port
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
-	FString GetDedicatedServerAddress();
+	int32 GetDedicatedServerPort();
 };
 

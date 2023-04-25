@@ -9,32 +9,30 @@
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 
+#include "DediTestGameMode.h"
+
 UMyGameInstance::UMyGameInstance()
 {
-	ForkProcessThread = nullptr;
+	NetworkThread = nullptr;
 }
 
 void UMyGameInstance::Init()
 {
 	Super::Init();
-
+	
 }
 
-void UMyGameInstance::CreateThread(int32 PortNumber)
+void UMyGameInstance::CreateThread()
 {
-	if (ForkProcessThread == nullptr)
-	{
-		ForkProcessThread = new SubThreadForCreateProcess(PortNumber);
-	}
-
+	NetworkThread = new SubThreadForCreateProcess(this);
 }
 
 void UMyGameInstance::DeleteThread()
 {
-	if (ForkProcessThread != nullptr)
+	if (NetworkThread != nullptr)
 	{
-		ForkProcessThread->Stop();
-		ForkProcessThread = nullptr;
+		NetworkThread->Stop();
+		NetworkThread = nullptr;
 	}
 
 }

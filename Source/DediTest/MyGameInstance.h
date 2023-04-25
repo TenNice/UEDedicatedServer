@@ -19,14 +19,14 @@ public:
 
 	virtual void Init() override;
 
-	void CreateThread(int32 PortNum);
+	UFUNCTION(BlueprintCallable, meta = (KeyWords = "Sihoon"))
+	void CreateThread();
 
 	void DeleteThread();
 	
 	
 private:
-	class SubThreadForCreateProcess* ForkProcessThread;
+	class SubThreadForCreateProcess* NetworkThread;
 
-	
 
 };

@@ -4,7 +4,7 @@
 #include "DediTestCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
-// IP 알아내기용
+// For getting IP
 #include "SocketSubsystem.h"
 
 
@@ -17,37 +17,13 @@ ADediTestGameMode::ADediTestGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	ServerPath = FString::Printf(TEXT("C:\\Work\\DediTest\\Packaged\\WindowsServer\\DediTestServer.exe"));
-
 }
 
-bool ADediTestGameMode::RunDedicatedServer(const FString& Options)
+
+FString ADediTestGameMode::GetDedicatedServerIP()
 {
-	// Construct the command line arguments
-	FString CommandLine = FString::Printf(TEXT("%s %s -server -log"), *ServerPath, *Options);
-
-	// Run the dedicated server
-	bool bSuccess = FPlatformProcess::CreateProc(*ServerPath, *CommandLine, true, false, false, nullptr, 0, nullptr, nullptr).IsValid();
-	if (!bSuccess)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to run dedicated server"));
-	}
-
-	return bSuccess;
-}
-
-FString ADediTestGameMode::GetDedicatedServerAddress()
-{
-	// Get Port Number
-	int32 PortNumber = NULL;
-	if (GetWorld() != nullptr)
-	{
-		PortNumber = GetWorld()->URL.Port;
-		UE_LOG(LogTemp, Error, TEXT("Port : %d"), PortNumber);
-	}
-
 	// Get IP Address
-	FString IPAddress = "none";
+	FString IPAddress = "None";
 	bool canBind = false;
 	TSharedRef<FInternetAddr>LocalIp = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->GetLocalHostAddr(*GLog, canBind);
 
@@ -57,9 +33,19 @@ FString ADediTestGameMode::GetDedicatedServerAddress()
 		UE_LOG(LogTemp, Error, TEXT("IP : %s"), *IPAddress);
 	}
 
-	// IP + Port
-	FString DedicatedServerAddress = FString::Printf(TEXT("%s:%d"), *IPAddress, PortNumber);
+	return IPAddress;
+}
 
-	return DedicatedServerAddress;
+int32 ADediTestGameMode::GetDedicatedServerPort()
+{
+	// Get Port Number
+	int32 PortNumber = NULL;
+	if (GetWorld() != nullptr)
+	{
+		PortNumber = GetWorld()->URL.Port;
+		UE_LOG(LogTemp, Error, TEXT("Port : %d"), PortNumber);
+	}
+	
+	return PortNumber;
 }
 
