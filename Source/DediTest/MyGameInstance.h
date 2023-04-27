@@ -26,7 +26,8 @@ public:
 	
 	
 private:
-	class SubThreadForCreateProcess* NetworkThread;
+	//class SubThreadForCreateProcess* NetworkThread;
 
+	TSharedPtr<class SubThreadForCreateProcess> MyThreadInstance;
 
 };

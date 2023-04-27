@@ -27,6 +27,8 @@ public:
 	virtual void Deinitialize() override;
 	// End USubsystem
 
+	//static UMySingletonSubsystem* GetInstance();
+
 	FString GetIP();
 	void SetIP(FString IPAddr);
 
@@ -40,9 +42,11 @@ public:
 	void SetPlayerNum(int32 Num);
 
 private:
+	//static UMySingletonSubsystem* InstanceSingleton;
+
 	FString IP;
 	int32 Port;
 	EServerState ServerState;
 	int32 PlayerNum;
-	
+
 };

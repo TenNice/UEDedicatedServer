@@ -7,6 +7,9 @@
 // For getting IP
 #include "SocketSubsystem.h"
 
+// Singleton class
+#include "MySingletonSubsystem.h"
+
 
 ADediTestGameMode::ADediTestGameMode()
 {
@@ -16,6 +19,8 @@ ADediTestGameMode::ADediTestGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	SingletonResource = nullptr;
 
 }
 
@@ -45,7 +50,17 @@ int32 ADediTestGameMode::GetDedicatedServerPort()
 		PortNumber = GetWorld()->URL.Port;
 		UE_LOG(LogTemp, Error, TEXT("Port : %d"), PortNumber);
 	}
-	
+
 	return PortNumber;
+}
+
+void ADediTestGameMode::SetResource()
+{
+	if (GetGameInstance() != nullptr)
+	{
+		SingletonResource = GetGameInstance()->GetSubsystem<UMySingletonSubsystem>();
+		SingletonResource->SetIP(GetDedicatedServerIP());
+		SingletonResource->SetPort(GetDedicatedServerPort());
+	}
 }
 

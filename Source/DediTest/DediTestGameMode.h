@@ -21,5 +21,11 @@ public:
 	// Get Port
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
 	int32 GetDedicatedServerPort();
+
+	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
+	void SetResource();
+
+private:
+	class UMySingletonSubsystem* SingletonResource;
 };
 
