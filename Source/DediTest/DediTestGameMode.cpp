@@ -7,8 +7,10 @@
 // For getting IP
 #include "SocketSubsystem.h"
 
-// Singleton class
-#include "MySingletonSubsystem.h"
+// For getting gameinstance
+#include "Kismet/GameplayStatics.h"
+
+#include "MyGameInstance.h"
 
 
 ADediTestGameMode::ADediTestGameMode()
@@ -20,8 +22,8 @@ ADediTestGameMode::ADediTestGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	SingletonResource = nullptr;
-
+	// 여기에서 함수 사용하면 에러 나네
+	//SetResource();
 }
 
 
@@ -56,11 +58,13 @@ int32 ADediTestGameMode::GetDedicatedServerPort()
 
 void ADediTestGameMode::SetResource()
 {
-	if (GetGameInstance() != nullptr)
-	{
-		SingletonResource = GetGameInstance()->GetSubsystem<UMySingletonSubsystem>();
-		SingletonResource->SetIP(GetDedicatedServerIP());
-		SingletonResource->SetPort(GetDedicatedServerPort());
-	}
+	// Set IP
+	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetIP(GetDedicatedServerIP());
+
+	// Set Port
+	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetPort(GetDedicatedServerPort());
+
+	// Set PlayerNum ****미완성****
+	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetPort(0);
 }
 

@@ -3,49 +3,49 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MyGameInstance.h"
 
 struct PacketData
 {
-	char DediIP[16];
+	int Flag = 1;
+	char DediIP[16] = { 0, };
 	int DediPort;
 	int DediPlayerNum;
-	int DediState;
 };
 
 /**
  * 
  */
-class DEDITEST_API SubThreadForCreateProcess : public FRunnable
+class DEDITEST_API NetworkThread : public FRunnable
 {
 public:
-	SubThreadForCreateProcess();
-	SubThreadForCreateProcess(UGameInstance* GI);
-	~SubThreadForCreateProcess();
+	NetworkThread();
+	NetworkThread(TQueue<ServerInfo, EQueueMode::Mpsc>* ServerInfoQueue);
+	~NetworkThread();
 
 	bool Init() override;
 	uint32 Run() override;
 	void Stop() override;
 
 	// Send Packet
-	void SendPacket();
+	void SendPacketData();
 
 	// Connect TCP Server
 	bool ConnectTCPServer();
 
-	// 
-
 
 private:
 	class FRunnableThread* Thread;
-	class UMySingletonSubsystem* SingletonResource;
 	class FSocket* Socket;
 	
-	// To Control run thread
+	// To control running thread
 	bool bRunThread;
 	bool bSend;
 
-	PacketData DediData;
-
 	// To check already connected TCP server
 	bool bConnectedTCP;
+
+	TQueue<ServerInfo, EQueueMode::Mpsc>* ServerInformationQueue = nullptr;
+	PacketData ServerInformations;
+
 };

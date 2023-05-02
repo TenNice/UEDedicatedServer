@@ -2,7 +2,7 @@
 
 
 #include "MyGameInstance.h"
-#include "SubThreadForCreateProcess.h"
+#include "NetworkThread.h"
 
 // For GetURL
 #include "Engine.h"
@@ -13,8 +13,7 @@
 
 UMyGameInstance::UMyGameInstance()
 {
-	//NetworkThread = nullptr;
-	MyThreadInstance = nullptr;
+	_NetworkThread = nullptr;
 }
 
 void UMyGameInstance::Init()
@@ -22,32 +21,60 @@ void UMyGameInstance::Init()
 	Super::Init();
 
 	UE_LOG(LogTemp, Warning, TEXT("Initialize GI"));
-	
 }
 
 void UMyGameInstance::CreateThread()
 {
-	//if (NetworkThread == nullptr)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Create Thread"));
-	//	NetworkThread = new SubThreadForCreateProcess(this);
-	//}
+	// 메세지 큐 테스트
+	ServerInformation.IP = "Test";
+	ServerInformation.Port = 9999;
+	ServerInformation.PlayerNum = 5;
 
-	// Create an instance of MyThread
-	MyThreadInstance = MakeShareable(new SubThreadForCreateProcess(this));
-	// Create a new thread from MyThreadInstance
-	//FRunnableThread* Thread = FRunnableThread::Create(MyThreadInstance.Get(), TEXT("MyThread"));
-	
+	MessageQueue.Enqueue(ServerInformation);
+
+	if (_NetworkThread == nullptr)
+	{
+		_NetworkThread = new NetworkThread(&MessageQueue);
+	}
 }
 
 void UMyGameInstance::DeleteThread()
 {
-	//if (NetworkThread != nullptr)
-	//{
-	//	NetworkThread->Stop();
-	//	NetworkThread = nullptr;
-	//}
+	if (_NetworkThread != nullptr)
+	{
+		_NetworkThread->Stop();
+		_NetworkThread = nullptr;
+	}
 
-	MyThreadInstance->Stop();
+}
+
+FString UMyGameInstance::GetIP()
+{
+	return ServerInformation.IP;
+}
+
+void UMyGameInstance::SetIP(FString IPAddr)
+{
+	ServerInformation.IP = IPAddr;
+}
+
+int32 UMyGameInstance::GetPort()
+{
+	return ServerInformation.Port;
+}
+
+void UMyGameInstance::SetPort(int32 PortNum)
+{
+	ServerInformation.Port = PortNum;
+}
+
+int32 UMyGameInstance::GetPlayerNum()
+{
+	return ServerInformation.PlayerNum;
+}
+
+void UMyGameInstance::SetPlayerNum(int32 Number)
+{
+	ServerInformation.PlayerNum = Number;
 }
 

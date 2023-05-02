@@ -26,6 +26,6 @@ public:
 	void SetResource();
 
 private:
-	class UMySingletonSubsystem* SingletonResource;
+	class UMyGameInstance* MyGameInstance = nullptr;
 };
 
