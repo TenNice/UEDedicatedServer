@@ -26,7 +26,7 @@ void UMyGameInstance::Init()
 void UMyGameInstance::CreateThread()
 {
 	// 메세지 큐 테스트
-	ServerInformation.IP = "Test";
+	ServerInformation.IP = "123.123.0.1";
 	ServerInformation.Port = 9999;
 	ServerInformation.PlayerNum = 5;
 

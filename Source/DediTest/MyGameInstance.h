@@ -48,7 +48,5 @@ public:
 private:
 	class NetworkThread* _NetworkThread;
 
-	//TSharedPtr<class SubThreadForCreateProcess> MyThreadInstance;
-
 	ServerInfo ServerInformation;
 };

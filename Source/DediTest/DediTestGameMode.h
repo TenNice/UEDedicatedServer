@@ -26,6 +26,5 @@ public:
 	void SetResource();
 
 private:
-	class UMyGameInstance* MyGameInstance = nullptr;
 };
 

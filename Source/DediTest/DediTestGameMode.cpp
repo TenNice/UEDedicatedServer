@@ -65,6 +65,6 @@ void ADediTestGameMode::SetResource()
 	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetPort(GetDedicatedServerPort());
 
 	// Set PlayerNum ****¹Ì¿Ï¼º****
-	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetPort(0);
+	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetPlayerNum(0);
 }
 

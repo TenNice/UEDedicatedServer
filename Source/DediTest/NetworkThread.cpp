@@ -21,9 +21,6 @@ NetworkThread::NetworkThread()
 	bSend = true;
 	bConnectedTCP = true;
 
-	// 프로토콜용. 1이면 데디 서버에서 보내는 패킷이다.
-	//ServerInformations.Flag = 1;
-	
 }
 
 NetworkThread::NetworkThread(TQueue<ServerInfo, EQueueMode::Mpsc>* ServerInfoQueue)
