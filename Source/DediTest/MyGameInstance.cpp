@@ -19,16 +19,16 @@ UMyGameInstance::UMyGameInstance()
 void UMyGameInstance::Init()
 {
 	Super::Init();
-
-	UE_LOG(LogTemp, Warning, TEXT("Initialize GI"));
 }
 
 void UMyGameInstance::CreateThread()
 {
 	// 메세지 큐 테스트
-	ServerInformation.IP = "123.123.0.1";
-	ServerInformation.Port = 9999;
-	ServerInformation.PlayerNum = 5;
+	//ServerInformation.IP = "123.123.0.1";
+	//ServerInformation.Port = 9999;
+	//ServerInformation.PlayerNum = 5;
+
+	UE_LOG(LogTemp, Warning, TEXT("Create Thread"));
 
 	MessageQueue.Enqueue(ServerInformation);
 
@@ -76,5 +76,15 @@ int32 UMyGameInstance::GetPlayerNum()
 void UMyGameInstance::SetPlayerNum(int32 Number)
 {
 	ServerInformation.PlayerNum = Number;
+}
+
+int32 UMyGameInstance::GetServerState()
+{
+	return ServerInformation.ServerState;
+}
+
+void UMyGameInstance::SetServerState(int32 State)
+{
+	ServerInformation.ServerState = State;
 }
 

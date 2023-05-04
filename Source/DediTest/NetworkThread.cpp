@@ -19,7 +19,7 @@ NetworkThread::NetworkThread()
 
 	bRunThread = true;
 	bSend = true;
-	bConnectedTCP = true;
+	bConnectedTCP = false;
 
 }
 
@@ -29,7 +29,7 @@ NetworkThread::NetworkThread(TQueue<ServerInfo, EQueueMode::Mpsc>* ServerInfoQue
 
 	bRunThread = true;
 	bSend = true;
-	bConnectedTCP = true;
+	bConnectedTCP = false;
 
 	ServerInformationQueue = ServerInfoQueue;
 }
@@ -54,9 +54,9 @@ uint32 NetworkThread::Run()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Run"));
 
-	while (bConnectedTCP)
+	while (!bConnectedTCP)
 	{
-		bConnectedTCP = !ConnectTCPServer();
+		bConnectedTCP = ConnectTCPServer();
 	}
 
 	// Do
@@ -81,11 +81,12 @@ void NetworkThread::SendPacketData()
 		strncpy_s(ServerInformations.DediIP, sizeof(ServerInformations.DediIP), TCHAR_TO_ANSI(*ReceivedData.IP), _TRUNCATE);
 		ServerInformations.DediPort = ReceivedData.Port;
 		ServerInformations.DediPlayerNum = ReceivedData.PlayerNum;
+		ServerInformations.DediServerState = ReceivedData.ServerState;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("%c"), *ServerInformations.DediIP);
 	UE_LOG(LogTemp, Warning, TEXT("%u"), ServerInformations.DediPort);
 	UE_LOG(LogTemp, Warning, TEXT("%u"), ServerInformations.DediPlayerNum);
-
+	UE_LOG(LogTemp, Warning, TEXT("%u"), ServerInformations.DediServerState);
 
 	uint8 Buffer[sizeof(ServerInformations)];
 	memcpy(Buffer, &ServerInformations, sizeof(ServerInformations));
@@ -118,8 +119,8 @@ bool NetworkThread::ConnectTCPServer()
 	}
 
 	// 연결 시도. 결과를 받아옴
-	bool bIsConnetcted = Socket->Connect(*Addr);
+	bool bIsConnected = Socket->Connect(*Addr);
 
-	return bIsConnetcted;
+	return bIsConnected;
 }
 

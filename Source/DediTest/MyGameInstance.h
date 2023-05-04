@@ -11,6 +11,7 @@ struct ServerInfo
 	FString IP;
 	int32 Port;
 	int32 PlayerNum;
+	int32 ServerState;
 };
 
 
@@ -41,6 +42,9 @@ public:
 
 	int32 GetPlayerNum();
 	void SetPlayerNum(int32 Num);
+
+	int32 GetServerState();
+	void SetServerState(int32 State);
 	// End Get, Set Data
 
 	TQueue<ServerInfo, EQueueMode::Mpsc> MessageQueue;

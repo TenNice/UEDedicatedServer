@@ -11,6 +11,7 @@ struct PacketData
 	char DediIP[16] = { 0, };
 	int DediPort;
 	int DediPlayerNum;
+	int DediServerState;
 };
 
 /**

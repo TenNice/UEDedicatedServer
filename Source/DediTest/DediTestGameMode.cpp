@@ -22,8 +22,15 @@ ADediTestGameMode::ADediTestGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
 
-	// 여기에서 함수 사용하면 에러 나네
-	//SetResource();
+}
+
+void ADediTestGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetResource();
+
+	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this))->CreateThread();
 }
 
 
@@ -66,5 +73,8 @@ void ADediTestGameMode::SetResource()
 
 	// Set PlayerNum ****미완성****
 	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetPlayerNum(0);
+
+	// Set ServerState
+	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetServerState(1);
 }
 

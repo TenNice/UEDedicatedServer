@@ -14,6 +14,8 @@ class ADediTestGameMode : public AGameModeBase
 public:
 	ADediTestGameMode();
 
+	virtual void BeginPlay() override;
+
 	// Get IP
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
 	FString GetDedicatedServerIP();

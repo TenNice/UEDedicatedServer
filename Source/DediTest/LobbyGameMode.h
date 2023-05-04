@@ -15,16 +15,22 @@ class DEDITEST_API ALobbyGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
-	void TryConnectDedicatedServer();
+	void ConnectDedicatedServer();
 
-	// Dedicated Address
-	FString DedicatedServerIP;
-	int32 DedicatedServerPort;
-
-	// Address to Destination
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
-	void SetDedicatedServerAddress(FString IPAddress, int32 PortNumber);
+	void TryRegister();
+
+	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
+	void TryLogin(FString ID, FString PW);
+
+	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
+	void TCPConnect();
+
+protected:
+	class ALoginActor* MyLoginActor = nullptr;
+
+	FString DedicatedServerAddress = "None";
+
 
 	
 };

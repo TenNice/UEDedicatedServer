@@ -2,23 +2,83 @@
 
 
 #include "LobbyGameMode.h"
+#include "LoginActor.h"
 
+// For getting playercontroller
 #include "Kismet/GameplayStatics.h"
 
-
-void ALobbyGameMode::TryConnectDedicatedServer()
+// Need Test*****************
+void ALobbyGameMode::ConnectDedicatedServer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Do Client Travel"));
-
-	FString DedicatedServerAddress = FString::Printf(TEXT("%s:%i"), *DedicatedServerIP, DedicatedServerPort);
-
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->ClientTravel(DedicatedServerAddress, TRAVEL_Absolute, 0);
+	UE_LOG(LogTemp, Warning, TEXT("Success ClientTravel"));
 
+
+	//APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	//if (PlayerController != nullptr)
+	//{
+	//	PlayerController->ClientTravel(DedicatedServerAddress, TRAVEL_Absolute);
+	//	UE_LOG(LogTemp, Warning, TEXT("Success ClientTravel"));
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Failed ClientTravel"));
+	//}
 }
 
-void ALobbyGameMode::SetDedicatedServerAddress(FString IP, int32 Port)
+
+void ALobbyGameMode::TryRegister()
 {
-	DedicatedServerIP = IP;
-	DedicatedServerPort = Port;
+	UE_LOG(LogTemp, Warning, TEXT("TryRegister"));
+	if (MyLoginActor == nullptr)
+	{
+		MyLoginActor = NewObject<ALoginActor>();
+	}
+
+	if (MyLoginActor != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DoRegister"));
+		MyLoginActor->DoRegister();
+	}
+
 }
 
+void ALobbyGameMode::TryLogin(FString InputID, FString InputPW)
+{
+	UE_LOG(LogTemp, Warning, TEXT("TryLogin"));
+	if (MyLoginActor == nullptr)
+	{
+		MyLoginActor = NewObject<ALoginActor>();
+	}
+
+	if (MyLoginActor != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DoLogin"));
+		MyLoginActor->DoLogin(InputID, InputPW);
+	}
+}
+
+void ALobbyGameMode::TCPConnect()
+{
+	if (MyLoginActor == nullptr)
+	{
+		MyLoginActor = NewObject<ALoginActor>();
+	}
+
+	if (MyLoginActor != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TCP"));
+		if (MyLoginActor->ConnectTCPServer())
+		{
+			DedicatedServerAddress = MyLoginActor->RequestAddress();
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *DedicatedServerAddress);
+
+			// Need test**************
+			//ConnectDedicatedServer();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed Connecting"));
+		}
+	}
+}

@@ -1,27 +1,56 @@
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
+ï»¿#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
-//#define FD_SETSIZE			100 // ¼ÒÄÏ¸®½ºÆ® »çÀÌÁî(±âº»°ªÀº 64)
+//#define FD_SETSIZE			100 // ì†Œì¼“ë¦¬ìŠ¤íŠ¸ ì‚¬ì´ì¦ˆ(ê¸°ë³¸ê°’ì€ 64)
 
 #include <iostream>
+
+// For DB
+#include "mysql/jdbc.h"
+#pragma comment(lib, "debug/mysqlcppconn.lib")
+
 // For Socket
 #include <Winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
+// For strcpy()
+#include <cstring>
+
 using namespace std;
 
 
-// µ¥µğÄÉÀÌÆ¼µå ¼­¹ö·ÎºÎÅÍ ¼ö½Å¹Ş´Â ±¸Á¶Ã¼
+// ë°ë””ì¼€ì´í‹°ë“œ ì„œë²„ë¡œë¶€í„° ìˆ˜ì‹ ë°›ëŠ” êµ¬ì¡°ì²´
 struct PacketData
 {
 	char DediIP[16];
 	int DediPort;
 	int DediPlayerNum;
+	int DediServerState;
 };
 
-
+void SendToDB(sql::Statement* _statement, string IPAddr, int PortNum, int PlayerNum, int DediServerState);
+void ReceiveFromDB(sql::Statement* _statement, sql::ResultSet*& _resultset);
 
 int main()
 {
+	/* DB */
+	// ì›Œí¬ë²¤ì¹˜ ê»ë°ê¸°
+	sql::Driver* driver;
+	driver = get_driver_instance();
+
+	// ì»¤ë„¥ì…˜ ê»ë°ê¸°
+	sql::Connection* connection;
+	connection = driver->connect("192.168.0.15:3306", "sihoon", "qwer1234");
+	connection->setSchema("server_info");
+
+	// ì¿¼ë¦¬ë¬¸ ë‚ ë ¤ì£¼ëŠ” ì•  ê»ë°ê¸°
+	sql::Statement* statement;
+	statement = connection->createStatement();
+
+	// ì¿¼ë¦¬ë¬¸ ë‚ ë¦¬ê³  ê²°ê³¼ ë°›ì„ ë•Œ ì“°ëŠ” ì•  ê»ë°ê¸°
+	sql::ResultSet* resultset = nullptr;
+
+
+
 	WSAData wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
@@ -29,27 +58,28 @@ int main()
 	SOCKADDR_IN ListenSockAddr;
 	memset(&ListenSockAddr, 0, sizeof(ListenSockAddr));
 	ListenSockAddr.sin_family = AF_INET;
-	ListenSockAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // inet_aton()À¸·Î ³ªÁß¿¡ ±³Ã¼ÇÏÀÚ
+	ListenSockAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // inet_aton()ìœ¼ë¡œ ë‚˜ì¤‘ì— êµì²´í•˜ì
 	ListenSockAddr.sin_port = htons(10000);
 
-	bind(ListenSocket, (SOCKADDR*)&ListenSockAddr, sizeof(ListenSockAddr));
+	// Winsock, jdbc ì¤‘ ì–´ëŠ bind ì‚¬ìš©í• ê±´ì§€ ëª…í™•íˆ í•´ì¤˜ì•¼ í•œë‹¤.
+	::bind(ListenSocket, (SOCKADDR*)&ListenSockAddr, sizeof(ListenSockAddr));
 
 	listen(ListenSocket, 0);
 
 	SOCKADDR_IN ClientSockAddr;
 	int ClientSockAddrLength = sizeof(ClientSockAddr);
 
-	// ¼ÒÄÏ¸®½ºÆ®¿ë ±¸Á¶Ã¼
+	// ì†Œì¼“ë¦¬ìŠ¤íŠ¸ìš© êµ¬ì¡°ì²´
 	fd_set ReadSocketList;
 	fd_set ReadSocketListCopy;
 
-	// fd_set ±¸Á¶Ã¼ ÃÊ±âÈ­. ±¸Á¶Ã¼ÀÇ ÁÖ¼Ò¸¦ ÆÄ¶ó¹ÌÅÍ·Î ³Ö¾îÁØ´Ù
+	// fd_set êµ¬ì¡°ì²´ ì´ˆê¸°í™”. êµ¬ì¡°ì²´ì˜ ì£¼ì†Œë¥¼ íŒŒë¼ë¯¸í„°ë¡œ ë„£ì–´ì¤€ë‹¤
 	FD_ZERO(&ReadSocketList);
 
-	// fd_set ±¸Á¶Ã¼¿¡ ³Ö±â. ListenSocket(¸®½ºÆ®¿¡ ³ÖÀ» ¼ÒÄÏ), &ReadSocketList(¸®½ºÆ®)¸¦ ÆÄ¶ó¹ÌÅÍ·Î ³Ö¾îÁØ´Ù
+	// fd_set êµ¬ì¡°ì²´ì— ë„£ê¸°. ListenSocket(ë¦¬ìŠ¤íŠ¸ì— ë„£ì„ ì†Œì¼“), &ReadSocketList(ë¦¬ìŠ¤íŠ¸)ë¥¼ íŒŒë¼ë¯¸í„°ë¡œ ë„£ì–´ì¤€ë‹¤
 	FD_SET(ListenSocket, &ReadSocketList);
 
-	// ¸î ÃÊ °£°İÀ¸·Î ¸®½ºÆ® È®ÀÎÇÒ±î? (tv_sec + tv_usec)
+	// ëª‡ ì´ˆ ê°„ê²©ìœ¼ë¡œ ë¦¬ìŠ¤íŠ¸ í™•ì¸í• ê¹Œ? (tv_sec + tv_usec)
 	TIMEVAL Timeout;
 	Timeout.tv_sec = 0;
 	Timeout.tv_usec = 300;
@@ -57,13 +87,13 @@ int main()
 	while (1)
 	{
 		ReadSocketListCopy = ReadSocketList;
-		// selectÇÔ¼ö´Â ¸®½ºÆ®¿¡¼­ ¸î °³°¡ ¹Ù²î¾ú´ÂÁö¸¦ ¸®ÅÏÇØÁØ´Ù. ±Ùµ¥ ¹Ù²ï °ÍÀ» Ç¥½ÃÇØÁØ´ä½Ã°í °ªÀ» º¯°æÇØ¹ö¸®±â ¶§¹®¿¡ ¿øº»ÀÌ ¾Æ´Ñ º¹»çº»À» ÁÖ°í È®ÀÎÇØº¸¶ó°í ÇØ¾ß ÇÑ´Ù
+		// selectí•¨ìˆ˜ëŠ” ë¦¬ìŠ¤íŠ¸ì—ì„œ ëª‡ ê°œê°€ ë°”ë€Œì—ˆëŠ”ì§€ë¥¼ ë¦¬í„´í•´ì¤€ë‹¤. ê·¼ë° ë°”ë€ ê²ƒì„ í‘œì‹œí•´ì¤€ë‹µì‹œê³  ê°’ì„ ë³€ê²½í•´ë²„ë¦¬ê¸° ë•Œë¬¸ì— ì›ë³¸ì´ ì•„ë‹Œ ë³µì‚¬ë³¸ì„ ì£¼ê³  í™•ì¸í•´ë³´ë¼ê³  í•´ì•¼ í•œë‹¤
 		int fd_num = select(0, &ReadSocketListCopy, nullptr, nullptr, &Timeout);
-		// TimeoutÀ¸·Î Á¤ÇÑ ½Ã°£º¸´Ù ¿À·¡ °É¸®´Â ÀÛ¾÷ÇÏ°í ÀÖÀ¸¸é, ±× ÀÛ¾÷ÀÌ ¾ÆÁ÷ ¾È ³¡³µ¾îµµ ¸®½ºÆ® È®ÀÎÇÏ³ª?
+		// Timeoutìœ¼ë¡œ ì •í•œ ì‹œê°„ë³´ë‹¤ ì˜¤ë˜ ê±¸ë¦¬ëŠ” ì‘ì—…í•˜ê³  ìˆìœ¼ë©´, ê·¸ ì‘ì—…ì´ ì•„ì§ ì•ˆ ëë‚¬ì–´ë„ ë¦¬ìŠ¤íŠ¸ í™•ì¸í•˜ë‚˜?
 
 		if (fd_num == 0)
 		{
-			// ´Ù¸¥ ÀÏ ÇÔ
+			// ë‹¤ë¥¸ ì¼ í•¨
 
 		}
 		else if (fd_num == SOCKET_ERROR)
@@ -72,7 +102,7 @@ int main()
 		}
 		else
 		{
-			// ¸®½ºÆ®¿¡¼­ ¹Ù²ï°Å Ã£¾Æ¶ó
+			// ë¦¬ìŠ¤íŠ¸ì—ì„œ ë°”ë€ê±° ì°¾ì•„ë¼
 			for (int i = 0; i < (int)ReadSocketList.fd_count; ++i)
 			{
 				if (FD_ISSET(ReadSocketList.fd_array[i], &ReadSocketListCopy))
@@ -89,43 +119,86 @@ int main()
 						char Buffer[1024] = { 0, };
 
 						int flag = NULL;
-						// Ã³À½¿¡ 4¹ÙÀÌÆ®¸¸ ¹Ş¾Æ¼­ int°ª È®ÀÎ. 1ÀÌ¸é µ¥µğ ¼­¹ö¿¡¼­ º¸³½°Å´Ù.
+						// ì²˜ìŒì— 4ë°”ì´íŠ¸ë§Œ ë°›ì•„ì„œ intê°’ í™•ì¸. 1ì´ë©´ ë°ë”” ì„œë²„ì—ì„œ ë³´ë‚¸ê±°ë‹¤.
 						int RecvLength = recv(ReadSocketList.fd_array[i], (char*)&Buffer, sizeof(int), 0);
 						cout << "FirstRecv" << endl;
-						memcpy(&flag, Buffer, sizeof(flag));
+						memcpy(&flag, Buffer, sizeof(int));
 
 						if (RecvLength > 0)
 						{
 							cout << "Flag: " << flag << endl;
 
+							// ë°ë””ì¼€ì´í‹°ë“œ ì„œë²„ì—ì„œ ë³´ë‚¸ íŒ¨í‚·
 							if (flag == 1)
 							{
 								PacketData DediData;
 								ZeroMemory((void*)&DediData, sizeof(DediData));
-								// ÀÌÈÄ µ¥ÀÌÅÍ ¼ö½Å
+								// ì´í›„ ë°ì´í„° ìˆ˜ì‹ 
 								RecvLength = recv(ReadSocketList.fd_array[i], (char*)&Buffer, sizeof(PacketData), 0);
 
-								//Buffer[RecvLength] = '\0';	//¹öÆÛÀÇ ¸¶Áö¸·¿¡ nullÃß°¡
-
+								// DediData ë©”ëª¨ë¦¬ ê³µê°„ì— íŒ¨í‚· ë°ì´í„° ê·¸ëŒ€ë¡œ ë³µì‚¬
 								memcpy(&DediData, Buffer, sizeof(PacketData));
-								cout << DediData.DediIP << endl;
-								cout << DediData.DediPort << endl;
-								cout << DediData.DediPlayerNum << endl;
+								cout << "IP: " << DediData.DediIP << endl;
+								cout << "Port: " << DediData.DediPort << endl;
+								cout << "Players: " << DediData.DediPlayerNum << endl;
+								cout << "ServerState: " << DediData.DediServerState << endl;
+
+								// Send Dedicated Server Information to DB
+								SendToDB(statement, DediData.DediIP, DediData.DediPort, DediData.DediPlayerNum, DediData.DediServerState);
 
 							}
+							else if(flag == 2) // í´ë¼ì´ì–¸íŠ¸ì—ì„œ ë³´ë‚¸ íŒ¨í‚·
+							{								
+								resultset = nullptr;
+								PacketData ServerInfo;
+								ZeroMemory((void*)&ServerInfo, sizeof(ServerInfo));
 
-							/*
-							// ¹ŞÀº ¸Ş¼¼Áö ¸ğµç Å¬¶óÀÌ¾ğÆ®¿¡ º¸³»±â
-							for (int i = 1; i < (int)ReadSocketList.fd_count; i++)
-							{
-								send(ReadSocketList.fd_array[i], Buffer, sizeof(Buffer), 0);
-							}
-							*/
+								// Receive Dedicated Server List from DB
+								ReceiveFromDB(statement, resultset);
+
+								// í”Œë ˆì´ì–´ ìˆ˜ê°€ ê°€ì¥ ì ì€ ì„œë²„ì˜ IP, Portê°’
+								int MinPlayer = 10000;
+								// resultsetì— ì—¬ëŸ¬ê°œê°€ ë“¤ì–´ìˆìœ¼ë©´ ì´ëŸ°ì‹ìœ¼ë¡œ
+								while (resultset->next()) {
+									string ip = resultset->getString("ip_address");
+									int port = resultset->getInt("port_number");
+									int player = resultset->getInt("player_number");
+									int state = resultset->getInt("server_state");
+
+									if (player == 0)
+									{
+										strcpy(ServerInfo.DediIP, ip.c_str());
+										ServerInfo.DediPort = port;
+										ServerInfo.DediPlayerNum = player;
+										ServerInfo.DediServerState = state;
+										break;
+									}
+									else
+									{
+										if (MinPlayer > player)
+										{
+											MinPlayer = player;
+											strcpy(ServerInfo.DediIP, ip.c_str());
+											ServerInfo.DediPort = port;
+											ServerInfo.DediPlayerNum = player;
+											ServerInfo.DediServerState = state;
+										}
+									}
+								}
+								cout << "ip_address: " << ServerInfo.DediIP << ", port_number: " << ServerInfo.DediPort << ", player_number: " << ServerInfo.DediPlayerNum << ", server_state: " << ServerInfo.DediServerState << endl;
+
+								// ë²„í¼ì— êµ¬ì¡°ì²´ ë‹´ê¸°
+								memcpy(Buffer, &ServerInfo, sizeof(PacketData));
+
+								// í´ë¼ì´ì–¸íŠ¸í•œí…Œ íŒ¨í‚· ë³´ë‚´ê¸°
+								int SendLength = send(ReadSocketList.fd_array[i], Buffer, sizeof(Buffer), 0);
+							} // end if(flag)
+
 						}
 						else
 						{
 							SOCKET ClosedSocket = ReadSocketList.fd_array[i];
-							// FD_SETÀÇ ¹İ´ë. ÆÄ¶ó¹ÌÅÍ·Î ³ÖÀº°Å ¾ø¾Ö±â. ÀÌ°Å ¾È ÇÏ¸é ¿¡·¯³­´Ù. Å¬¸®¾îÇÏ°í Å¬·ÎÁî
+							// FD_SETì˜ ë°˜ëŒ€. íŒŒë¼ë¯¸í„°ë¡œ ë„£ì€ê±° ì—†ì• ê¸°. ì´ê±° ì•ˆ í•˜ë©´ ì—ëŸ¬ë‚œë‹¤. í´ë¦¬ì–´í•˜ê³  í´ë¡œì¦ˆ
 							FD_CLR(ClosedSocket, &ReadSocketList);
 							closesocket(ClosedSocket);
 						}
@@ -138,10 +211,60 @@ int main()
 
 
 	closesocket(ListenSocket);
-
-
 	WSACleanup();
+
+	// ë§Œë“  ê²ƒë“¤ ì—­ìˆœìœ¼ë¡œ ì§€ìš°ê¸°
+	delete resultset;
+	delete statement;
+	delete connection;
+
 
 	return 0;
 }
 
+
+void SendToDB(sql::Statement* _statement, string IPAddr, int PortNum, int PlayerNum, int DediServerState)
+{
+	// DBì— ì…ë ¥ë  ë°ì´í„° ê°’
+	string IP = IPAddr;
+	string stringPort = to_string(PortNum);
+	string stringPlayerNumber = to_string(PlayerNum);
+	string stringServerState = to_string(DediServerState);
+
+	// ì¿¼ë¦¬ë¬¸ ì„¸íŒ…
+	string query = "INSERT INTO server_list (ip_address, port_number, player_number, server_state) VALUES ('" + IP + "', " + stringPort + ", " + stringPlayerNumber + ", " + stringServerState + ") ON DUPLICATE KEY UPDATE player_number=" + stringPlayerNumber + ";";
+
+	try
+	{
+		// ì¿¼ë¦¬ë¬¸ ë‚ ë¦¬ê¸°
+		_statement->execute(query);
+	}
+	catch (sql::SQLException err)
+	{
+		cout << "Exception : " << __FILE__ << endl;
+		cout << "Function : " << __FUNCTION__ << endl;
+		cout << "Line : " << __LINE__ << endl;
+		cout << "What : " << err.what() << endl;
+		cout << "Error code : " << err.getErrorCode() << endl;
+	}
+}
+
+void ReceiveFromDB(sql::Statement* _statement, sql::ResultSet*& _resultset)
+{
+	// ì¿¼ë¦¬ë¬¸ ì„¸íŒ…
+	string query = "SELECT * from server_list";
+
+	try {
+		// ì‹¤í–‰í•˜ê³  ê²°ê³¼ ë°›ì•„ì˜¤ëŠ”ê²Œ ìˆì„ ë•Œ executeQuery ì‚¬ìš©í•˜ì(ê²°ê³¼ê°’ì€ ResultSet* íƒ€ì…ì´ë‹¤)
+		_resultset = _statement->executeQuery(query);
+	}
+	catch (sql::SQLException err)
+	{
+		cout << "Exception : " << __FILE__ << endl;
+		cout << "Function : " << __FUNCTION__ << endl;
+		cout << "Line : " << __LINE__ << endl;
+		cout << "What : " << err.what() << endl;
+		cout << "Error code : " << err.getErrorCode() << endl;
+	}
+
+}
