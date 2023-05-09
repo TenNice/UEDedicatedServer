@@ -40,7 +40,7 @@ void ALoginActor::Tick(float DeltaTime)
 }
 
 
-void ALoginActor::DoLogin(FString InputID, FString InputPW)
+bool ALoginActor::DoLogin(FString InputID, FString InputPW)
 {
 	// Construct the login JSON payload
 	TSharedPtr<FJsonObject> LoginJson = MakeShareable(new FJsonObject);
@@ -69,9 +69,10 @@ void ALoginActor::DoLogin(FString InputID, FString InputPW)
 	// Send the request
 	Request->ProcessRequest();
 
-
+	return bSuccessLogin;
 }
 
+// Delligate Recieve Response
 void ALoginActor::ReceiveLoginResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
 
@@ -79,16 +80,7 @@ void ALoginActor::ReceiveLoginResponse(FHttpRequestPtr Request, FHttpResponsePtr
 	{
 		FString ResponseStr = Response->GetContentAsString();
 		UE_LOG(LogTemp, Warning, TEXT("Login response received: %s"), *ResponseStr);
-
-		// 로그인 성공했으니 TCP 서버에 연결해서 IP, Port 받아오기
-		// 접속 될 때까지 시도
-		while (!bSuccessConnect)
-		{
-			bSuccessConnect = ConnectTCPServer();
-		}
-
-		// 접속됐으니 패킷 보내고 받기
-		RequestAddress();
+		bSuccessLogin = true;
 
 	}
 	else
@@ -156,6 +148,7 @@ bool ALoginActor::ConnectTCPServer()
 	return bIsConnected;
 }
 
+// 접속된 TCP 서버에 데디케이티드 서버 주소 요청
 FString ALoginActor::RequestAddress()
 {
 	// Send

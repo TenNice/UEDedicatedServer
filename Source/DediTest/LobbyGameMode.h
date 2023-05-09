@@ -15,7 +15,7 @@ class DEDITEST_API ALobbyGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	void ConnectDedicatedServer();
+	void ConnectDedicatedServer(FString DedicatedServerAddress);
 
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
 	void TryRegister();
@@ -28,9 +28,6 @@ public:
 
 protected:
 	class ALoginActor* MyLoginActor = nullptr;
-
-	FString DedicatedServerAddress = "None";
-
 
 	
 };

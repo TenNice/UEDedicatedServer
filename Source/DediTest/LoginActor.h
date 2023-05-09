@@ -34,18 +34,17 @@ protected:
 
 	class FSocket* Socket;
 
-	bool bSuccessConnect = false;
-
-	FString DestinaionIP;
-	int32 DestinationPort;
+	FString DestinaionAddress;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void DoLogin(FString InputID, FString InputPW);
+	bool DoLogin(FString InputID, FString InputPW);
 
 	void ReceiveLoginResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+
+	bool bSuccessLogin = false;
 
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
 		void DoRegister();

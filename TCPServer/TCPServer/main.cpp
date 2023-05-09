@@ -156,6 +156,8 @@ int main()
 								// Receive Dedicated Server List from DB
 								ReceiveFromDB(statement, resultset);
 
+								
+
 								// 플레이어 수가 가장 적은 서버의 IP, Port값
 								int MinPlayer = 10000;
 								// resultset에 여러개가 들어있으면 이런식으로
@@ -165,7 +167,8 @@ int main()
 									int player = resultset->getInt("player_number");
 									int state = resultset->getInt("server_state");
 
-									if (player == 0)
+									// 일단 내 데데케이티드 서버 ip주소이면 우선 접속되게 함
+									if (ip == "192.168.0.15")
 									{
 										strcpy(ServerInfo.DediIP, ip.c_str());
 										ServerInfo.DediPort = port;

@@ -7,23 +7,12 @@
 // For getting playercontroller
 #include "Kismet/GameplayStatics.h"
 
-// Need Test*****************
-void ALobbyGameMode::ConnectDedicatedServer()
+
+void ALobbyGameMode::ConnectDedicatedServer(FString DedicatedServerAddress)
 {
+	// Client Travel API 사용해서 데디케이티드 서버에 접속
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->ClientTravel(DedicatedServerAddress, TRAVEL_Absolute, 0);
 	UE_LOG(LogTemp, Warning, TEXT("Success ClientTravel"));
-
-
-	//APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-	//if (PlayerController != nullptr)
-	//{
-	//	PlayerController->ClientTravel(DedicatedServerAddress, TRAVEL_Absolute);
-	//	UE_LOG(LogTemp, Warning, TEXT("Success ClientTravel"));
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Failed ClientTravel"));
-	//}
 }
 
 
@@ -54,7 +43,11 @@ void ALobbyGameMode::TryLogin(FString InputID, FString InputPW)
 	if (MyLoginActor != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DoLogin"));
-		MyLoginActor->DoLogin(InputID, InputPW);
+		if (MyLoginActor->DoLogin(InputID, InputPW))
+		{
+			// 로그인 성공했으면 TCP 서버에 접속
+			TCPConnect();
+		}
 	}
 }
 
@@ -68,13 +61,14 @@ void ALobbyGameMode::TCPConnect()
 	if (MyLoginActor != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TCP"));
+		// TCP 서버에 접속
 		if (MyLoginActor->ConnectTCPServer())
 		{
-			DedicatedServerAddress = MyLoginActor->RequestAddress();
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *DedicatedServerAddress);
+			FString DediServerAddress = MyLoginActor->RequestAddress();
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *DediServerAddress);
 
-			// Need test**************
-			//ConnectDedicatedServer();
+			// 전달 받은 주소로 접속
+			ConnectDedicatedServer(DediServerAddress);
 		}
 		else
 		{
