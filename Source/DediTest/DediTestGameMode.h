@@ -16,6 +16,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+
 	// Get IP
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
 	FString GetDedicatedServerIP();
@@ -27,6 +29,6 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (Keywords = "Sihoon"))
 	void SetResource();
 
-private:
+protected:
 };
 

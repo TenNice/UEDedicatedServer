@@ -8,7 +8,7 @@ public class DediTest : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "Json", "JsonUtilities", "HTTP", "UMG", "Networking", "Sockets" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "Json", "JsonUtilities", "HTTP", "UMG", "Networking", "Sockets", "UniversalVoiceChatPro", "Voice", "OnlineSubsystem", "OnlineSubsystemUtils" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
 

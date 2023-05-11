@@ -5,6 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+
+// For voice chat
+#include "PlayerVoiceChatActor.h"
+
 #include "DediTestCharacter.generated.h"
 
 
@@ -39,6 +43,13 @@ class ADediTestCharacter : public ACharacter
 
 public:
 	ADediTestCharacter();
+
+	// Function of voice chat
+	UFUNCTION(BlueprintCallable)
+	void StartVoiceChat();
+
+	UFUNCTION(BlueprintCallable)
+	void StopVoiceChat();
 	
 
 protected:

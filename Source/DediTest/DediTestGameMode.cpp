@@ -12,6 +12,8 @@
 
 #include "MyGameInstance.h"
 
+// For voice chat
+#include "PlayerVoiceChatActor.h"
 
 ADediTestGameMode::ADediTestGameMode()
 {
@@ -31,6 +33,21 @@ void ADediTestGameMode::BeginPlay()
 	SetResource();
 
 	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(this))->CreateThread();
+}
+
+void ADediTestGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	// Set SpawnActor Parameters
+	FVector SpawnLocation = FVector(0.f, 0.f, 0.f);
+	FRotator SpawnRotation = FRotator(0.f, 0.f, 0.f);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = NewPlayer;
+
+	// Spawn a new instance of the actor of Voice chat plugin
+	AActor* SpawnedActor = GetWorld()->SpawnActor<APlayerVoiceChatActor>(APlayerVoiceChatActor::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+
 }
 
 
@@ -71,10 +88,10 @@ void ADediTestGameMode::SetResource()
 	// Set Port
 	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetPort(GetDedicatedServerPort());
 
-	// Set PlayerNum ****미완성****
+	// Set PlayerNum ****수정 필요****
 	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetPlayerNum(0);
 
-	// Set ServerState
+	// Set ServerState ****수정 필요****
 	Cast<UMyGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()))->SetServerState(1);
 }
 

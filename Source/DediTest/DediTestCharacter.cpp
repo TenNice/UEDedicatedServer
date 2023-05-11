@@ -51,6 +51,16 @@ ADediTestCharacter::ADediTestCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
+void ADediTestCharacter::StartVoiceChat()
+{
+	UUniversalVoiceChat::VoiceChatStartSpeak(true, true, 0, false, 0);
+}
+
+void ADediTestCharacter::StopVoiceChat()
+{
+	UUniversalVoiceChat::VoiceChatStopSpeak();
+}
+
 void ADediTestCharacter::BeginPlay()
 {
 	// Call the base class  
