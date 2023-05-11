@@ -42,6 +42,8 @@ void ALoginActor::Tick(float DeltaTime)
 
 bool ALoginActor::DoLogin(FString InputID, FString InputPW)
 {
+	UE_LOG(LogTemp, Warning, TEXT("DoLogin"));
+
 	// Construct the login JSON payload
 	TSharedPtr<FJsonObject> LoginJson = MakeShareable(new FJsonObject);
 	LoginJson->SetStringField(TEXT("email"), InputID);
@@ -53,8 +55,8 @@ bool ALoginActor::DoLogin(FString InputID, FString InputPW)
 	FJsonSerializer::Serialize(LoginJson.ToSharedRef(), JsonWriter);
 
 	// URI Base + API
-	FString UriBase = TEXT("http://192.168.0.117:8080");
-	FString UriLogin = UriBase + TEXT("/api/login");
+	FString UriBase = TEXT("http://192.168.0.10:8080");
+	FString UriLogin = UriBase + TEXT("/login");
 
 	// Create the HTTP request and set the content
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
@@ -103,8 +105,8 @@ void ALoginActor::DoRegister()
 	FJsonSerializer::Serialize(RegisterJson.ToSharedRef(), JsonWriter);
 
 	// URI Base + API
-	FString UriBase = TEXT("http://192.168.0.117:8080");
-	FString UriRegister = UriBase + TEXT("/api/signup");
+	FString UriBase = TEXT("http://192.168.0.10:8080");
+	FString UriRegister = UriBase + TEXT("/signup");
 
 	// Create the HTTP request and set the content
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();

@@ -42,7 +42,6 @@ void ALobbyGameMode::TryLogin(FString InputID, FString InputPW)
 
 	if (MyLoginActor != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DoLogin"));
 		if (MyLoginActor->DoLogin(InputID, InputPW))
 		{
 			// 로그인 성공했으면 TCP 서버에 접속

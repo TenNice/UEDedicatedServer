@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 
-#include "Components/EditableText.h"
+//#include "Components/EditableText.h"
 
 #include "LoginWidget.generated.h"
 
@@ -18,14 +18,7 @@ class DEDITEST_API ULoginWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	FString GetID();
-	FString GetPW();
 
 protected:
-	UPROPERTY(meta = (BindWidget))
-	UEditableText* EditableTextBox_ID;
-
-	UPROPERTY(meta = (BindWidget))
-	UEditableText* EditableTextBox_PW;
 	
 };
